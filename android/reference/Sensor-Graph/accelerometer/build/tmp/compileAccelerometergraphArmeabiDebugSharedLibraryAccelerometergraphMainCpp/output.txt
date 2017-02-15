@@ -1,0 +1,4 @@
+See file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/compileAccelerometergraphArmeabiDebugSharedLibraryAccelerometergraphMainCpp/output.txt for all output for compileAccelerometergraphArmeabiDebugSharedLibraryAccelerometergraphMainCpp.
+compiling sensorgraph.cpp successful.
+
+Finished compileAccelerometergraphArmeabiDebugSharedLibraryAccelerometergraphMainCpp, see full log file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/compileAccelerometergraphArmeabiDebugSharedLibraryAccelerometergraphMainCpp/output.txt.

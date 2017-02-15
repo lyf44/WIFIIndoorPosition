@@ -1,0 +1,4 @@
+See file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/linkAccelerometergraphArmeabi-v7aDebugSharedLibrary/output.txt for all output for linkAccelerometergraphArmeabi-v7aDebugSharedLibrary.
+linking libaccelerometergraph.so successful.
+
+Finished linkAccelerometergraphArmeabi-v7aDebugSharedLibrary, see full log file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/linkAccelerometergraphArmeabi-v7aDebugSharedLibrary/output.txt.

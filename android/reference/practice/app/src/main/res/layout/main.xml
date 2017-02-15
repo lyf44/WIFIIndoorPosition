@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <TextView
+            android:id="@+id/XT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="x="
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/ZT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/XT"
+            android:layout_marginTop="30dp"
+            android:text="z="
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/YT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/ZT"
+            android:layout_below="@+id/ZT"
+            android:layout_marginTop="50dp"
+            android:text="y="
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="g="
+        android:id="@+id/G"
+        android:layout_gravity="center_vertical" />
+
+</LinearLayout>

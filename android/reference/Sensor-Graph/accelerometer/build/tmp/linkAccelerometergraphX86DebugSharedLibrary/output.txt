@@ -1,0 +1,4 @@
+See file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/linkAccelerometergraphX86DebugSharedLibrary/output.txt for all output for linkAccelerometergraphX86DebugSharedLibrary.
+linking libaccelerometergraph.so successful.
+
+Finished linkAccelerometergraphX86DebugSharedLibrary, see full log file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/linkAccelerometergraphX86DebugSharedLibrary/output.txt.

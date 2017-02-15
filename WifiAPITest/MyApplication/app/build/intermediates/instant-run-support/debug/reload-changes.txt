@@ -1,0 +1,2 @@
+CHANGED,D:\MyLife\work\FYP\WIFI\WifiAPITest\MyApplication\app\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\android\tools\fd\runtime\AppPatchesLoaderImpl.class
+CHANGED,D:\MyLife\work\FYP\WIFI\WifiAPITest\MyApplication\app\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\luyun\wifiapitest\MainActivity$getWifiApi$override.class
