@@ -53,7 +53,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class MainActivity extends ActionBarActivity implements SensorEventListener, LeScanCallback {
+import static java.lang.Math.abs;
+
+//TODO 1. add rotation button to prompt user to correct initial heading
+//TODO 2. check how to heading comes into step detection
+//TODO 3. added a constant internet stream.
+public class MainActivity extends ActionBarActivity implements SensorEventListener{// implements LeScanCallback
 
 	//for UI
 	private SurfaceView surface_view;
@@ -67,29 +72,34 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 	private Bitmap dot;
 	private double mapWidth = 35.65;
 	private double mapHeight = 16.6;
+	private String macAddress;
+	static public double gravity = 0f;
+
+	//flags
 	private boolean initialPositionReceived = false;
 	private boolean flag_WIFIchanged = false;
-	private String macAddress;
+
 
 	//Sensors
 	SensorManager smManager;
-	Sensor accSensor,oriSensor;
-	public double[] accData_z = new double [100];
-	public double[] oriData_a = new double [100];
+	Sensor accSensor, oriSensor;
+	public double[] accData_z = new double[100];
+	public double[] oriData_a = new double[100];
 
 	//bluetooth
+	/*
 	private BluetoothAdapter mBluetoothAdapter;
 	private SparseArray<BluetoothDevice> mDevices;
 	private BluetoothGatt mConnectedGatt;
-	private InitiBeacon mInitiBeacon = new InitiBeacon();;
+	private InitiBeacon mInitiBeacon = new InitiBeacon();
+	;
 	ConfigiBeacon configiBeacon = new ConfigiBeacon();
 	CalibrationiBeacon calibrationiBeacon = new CalibrationiBeacon();
+    */
 
-	//
-	private boolean isFirstPoint = true;
 	Position finalPosition = new Position();
 	Position PDRPosition = new Position();
-	Position iBeaconPosition = new Position();
+	//Position iBeaconPosition = new Position();
 
 	//initialization of step detection parameters
 	StepDetectionParameters SDparameters = new StepDetectionParameters();
@@ -105,7 +115,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 	LocAlgorithms_PDR pdrAlgorithm = new LocAlgorithms_PDR();
 	InitialPointEstimation initialPointEstimation = new InitialPointEstimation();
 
-	//handle
+	//handler
 	public Handler Handler;
 
 	@Override
@@ -113,92 +123,186 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 		super.onCreate(savedInstanceState);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, // full screen
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		getSupportActionBar().hide();
+		getSupportActionBar().hide();//hide action bar
 		setContentView(R.layout.activity_main);
 
 		//Bluetooth initialization
+		/*
 		BluetoothManager manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 		mBluetoothAdapter = manager.getAdapter();
         mDevices = new SparseArray<BluetoothDevice>();
-        //configiBeacon.ReadWifiConfig();
+        */
+		//configiBeacon.ReadWifiConfig();
 
 		//get device's MAC address
 		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wInfo = wifiManager.getConnectionInfo();
-		//macAddress = wInfo.getMacAddress().toUpperCase();
-		macAddress = "08:57:00:87:FC:9D";
-		//
+		macAddress = wInfo.getMacAddress().toUpperCase();
+		//macAddress = "08:57:00:87:FC:9D";
+
 		InitSurface();
 		InitSensors();
 		InitHandle();
-		mInitiBeacon.InitiBeacon();
+		InitParticle();
+
+		//mInitiBeacon.InitiBeacon();
+
+		//scan for bluetooth device
+		//startScan();
+
+		/*use toast to show progress*/
+		Context context = getApplicationContext();
+		CharSequence t = "getting WIFI data!";
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, t, duration);
+		toast.show();
+
+		initialPositionReceived=InitPosition();
+		if (!initialPositionReceived){
+			t = "Error getting WIFI data!Retrying";
+			toast.show();
+			int retryCounter = 0;
+			while(!initialPositionReceived && retryCounter<5){
+				initialPositionReceived=InitPosition();
+				retryCounter++;
+			}
+			if (retryCounter==5){
+				t = "getting WIFI data failed";
+				toast.show();
+			}
+		}
+
+		if(initialPositionReceived){
+			Draw(finalPosition, SDparameters, WIFIPos, PDRPosition);
+			new Thread(new RefreshThread()).start();
+			new Thread(new WifiThread()).start();
+		}
+
+	}
+
+	/****************************
+	 * Initialization functions
+	 *************************************************/
+	private void InitParticle(){
 		int i;
-		for (i=0;i<500;i++){
+		for (i = 0; i < 500; i++) {
 			particle[i] = new Position();
 			particleNew[i] = new Position();
 		}
-
-		//scan for bluetooth device
-		startScan();
-
-		new Thread(new WifiThread()).start();
 	}
+	private void InitSurface() {
 
-	/**************************handle***********/
+		surface_view = (SurfaceView) findViewById(R.id.surfaceView1);
+		sfh = surface_view.getHolder();
+		sfh.addCallback(new DisplaySurfaceView());
+
+		float x = this.getWindowManager().getDefaultDisplay().getWidth();
+		float y = this.getWindowManager().getDefaultDisplay().getHeight();
+		screenSize.set(x, y);
+		map = BitmapFactory.decodeResource(getResources(), R.drawable.lab3);
+		user = BitmapFactory.decodeResource(getResources(), R.drawable.user1);
+		dot = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+		paint = new Paint();
+	}
+	private void InitSensors() {
+		smManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		accSensor = smManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+		oriSensor = smManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+
+		//initialization
+		for (int i = 0; i < accData_z.length; i++) {
+			accData_z[i] = 0;
+		}
+		for (int i = 0; i < oriData_a.length; i++) {
+			oriData_a[i] = 0;
+		}
+		//open sensor
+		smManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_GAME);
+		smManager.registerListener(this, oriSensor, SensorManager.SENSOR_DELAY_GAME);
+
+	}
 	private void InitHandle() {
 		Handler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
 				String text = (String) msg.obj;
-				if (text.contains("Finish")) {
-					//PFalgorithm();
-					//finalPosition=kalmanFilter.DoFusion(observationPosition, finalPosition, SDparameters);
-					//GlabalData.currentPosition.x = finalPosition.x;
-					//GlabalData.currentPosition.y = finalPosition.y;
+				if (text.contains("PDRFinish")) {
 					//Run Particle Filter
-					particle = pdrAlgorithm.DoLoc(SDparameters,WIFIPos,particle,flag_WIFIchanged);
-					PDRPosition.x = PDRPosition.x + SDparameters.stepLength*Math.sin(SDparameters.walking_direction*Math.PI/180.0f);
-					PDRPosition.y = PDRPosition.y + SDparameters.stepLength*Math.cos(SDparameters.walking_direction*Math.PI/180.0f);
+					particle = pdrAlgorithm.DoLoc(SDparameters, WIFIPos, particle, flag_WIFIchanged);
+					PDRPosition.x = PDRPosition.x + SDparameters.stepLength * Math.sin(SDparameters.walking_direction * Math.PI / 180.0f);
+					PDRPosition.y = PDRPosition.y + SDparameters.stepLength * Math.cos(SDparameters.walking_direction * Math.PI / 180.0f);
 					int i;
 					finalPosition.x = 0.0;
 					finalPosition.y = 0.0;
-					for(i=0; i<500; i++){
-						finalPosition.x += particle[i].x/500;
-						finalPosition.y += particle[i].y/500;
+					/*use the average of the first 400 sample to determine final position*/
+					for (i = 0; i < 400; i++) {
+						finalPosition.x += particle[i].x;
+						finalPosition.y += particle[i].y;
 					}
+					finalPosition.x /= 400;
+					finalPosition.y /= 400;
 
-					if (finalPosition.x <0.3) {
+					/*;limit output*/
+					if (finalPosition.x < 0.3) {
 						finalPosition.x = 0.3;
-					}else if (finalPosition.x > mapWidth - 0.3) {
-						finalPosition.x = mapWidth-0.3;
+					} else if (finalPosition.x > mapWidth - 0.3) {
+						finalPosition.x = mapWidth - 0.3;
 					}
-					if (finalPosition.y <0.3) {
+					if (finalPosition.y < 0.3) {
 						finalPosition.y = 0.3;
-					}else if (finalPosition.y > mapHeight - 0.3) {
-						finalPosition.y = mapHeight-0.3;
+					} else if (finalPosition.y > mapHeight - 0.3) {
+						finalPosition.y = mapHeight - 0.3;
 					}
 
 					//clear the flag
-					if(flag_WIFIchanged){
+					if (flag_WIFIchanged) {
 						flag_WIFIchanged = false;
 					}
-					//startScan();// scan after each step
 
-				}else if (text.contains("Time")) {
+				} else if (text.contains("Time")) {
 					//Log.e("Timer", finalPosition.x+","+finalPosition.y);
 					Draw(finalPosition, SDparameters, WIFIPos, PDRPosition);
-				}else if (text.equals("Error")) {
+				} else if (text.equals("Error")) {
 					//Use toast to show error
 					Context context = getApplicationContext();
 					CharSequence t = "Error getting WIFI data!";
 					int duration = Toast.LENGTH_SHORT;
-					Toast toast = Toast.makeText(context,t, duration);
+					Toast toast = Toast.makeText(context, t, duration);
 					toast.show();
 				}
 			}
 		};
 	}
+	private boolean InitPosition() {
+		boolean success = getWifiPosition("GetTargetByMAC", "mac", macAddress);
+		if (success && (abs(WIFIPos.x) <1e-4)) {
+			finalPosition.x = WIFIPos.x;
+			finalPosition.y = WIFIPos.y;
+			PDRPosition.x = WIFIPos.x;
+			PDRPosition.y = WIFIPos.y;
+			int i;
+			double orientation;
+			double radius;
+			double z_R = 1;
+			Random r = new Random(1);
+			for (i = 0; i < 400; i++) {
+				orientation = Math.random() * 2 * Math.PI;
+				radius = z_R / 2 * r.nextGaussian();
+				particle[i].x = WIFIPos.x + radius * Math.cos(orientation);
+				particle[i].y = WIFIPos.y + radius * Math.sin(orientation);
+			}
+			for (i = 400; i < 500; i++) {
+				//redistribute random particle around the map
+				particleNew[i].x = 36 * Math.random();
+				particleNew[i].y = 15 * Math.random();
+			}
+		}
+		return success;
+	}
 
+	/*****************************
+	 * threads
+	 ***************************************/
 	//send message to main thread.
 	public void updatetrack(String s) {
 		Message msg = new Message();
@@ -207,8 +311,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 		Handler.sendMessage(msg);
 	}
 
-	//refresh screen every 200ms.
-	public class MyThread implements Runnable {
+	//refreshthread refreshes screen every 200ms.
+	public class RefreshThread implements Runnable {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
@@ -225,14 +329,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 	}
 
 	//WifiThread this thread get wifiPosition every 1 second
-	public class WifiThread implements Runnable{
+	public class WifiThread implements Runnable {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
 			while (true) {
 				try {
-					boolean result = getWifiPosition("GetTargetByMAC","mac",macAddress);
-					if (result == false){
+					boolean result = getWifiPosition("GetTargetByMAC", "mac", macAddress);
+					if (result == false) {
 						updatetrack("Error");
 					}
 					Thread.sleep(1000);
@@ -243,7 +347,237 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 			}
 		}
 	}
-	/**************************handle***********/
+
+	/******************************
+	 * IMU method
+	 *******************************/
+	//this runs on main thread.
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+
+		double realtimeDirection_temp = 0;
+		//double realDirectiondiff_temp=0;
+		//double[] diffrealdirection = new double[9];
+
+		if (event.sensor.getName() == accSensor.getName()) // acceleration
+		{
+			final double alpha = 0.8;
+			if (abs(gravity) < 1e-4) {
+				gravity = event.values[2];
+			} else {
+				gravity = alpha * gravity + (1 - alpha) * event.values[2];
+			}
+
+			//update array, array contains the z acceleration over time
+			for (int i = 0; i < accData_z.length - 1; i++) {
+				accData_z[i] = accData_z[i + 1];
+			}
+			accData_z[99] = event.values[2] - gravity; // z-axis acceleration
+
+			/* original code */
+			/*
+			if (SDparameters.possible_start) {
+				SDparameters.counting++;
+			}*/
+
+			sDfunction.stepDetection(accData_z, oriData_a, SDparameters);
+		} else {
+			/*orientation*/
+			//update array
+			for (int i = 0; i < oriData_a.length - 1; i++) {
+				oriData_a[i] = oriData_a[i + 1];
+			}
+
+			/*why not just use a software low pass filter*/
+			//TODO do LPF on first value?
+			if (abs(oriData_a[99]) < 1e-4) {
+				realtimeDirection_temp = event.values[0];//azimuth/yaw
+			} else {
+				/*LPF*/
+				realtimeDirection_temp = 0.4 * oriData_a[98] + 0.6 * event.values[0];// azimuth/yaw
+			}
+			oriData_a[99] = realtimeDirection_temp;
+			SDparameters.realtimeDirction = realtimeDirection_temp;
+
+			/*original code*/
+			/*
+			for (int i = 90; i < 100-1; i++) {
+				//realtimeDirection_temp += oriData_a[i];
+				double difftemp;
+				difftemp= oriData_a[i]-oriData_a[i+1]; //0--360 gap
+				if (difftemp > 180) {
+					difftemp = difftemp - 360;
+				}else if (difftemp < -180) {
+					difftemp = difftemp + 360;
+				}
+				diffrealdirection[i-90] = difftemp;
+			}
+			for (int i = 0; i < diffrealdirection.length; i++) {
+				realtimeDirection_temp += diffrealdirection[i]*(9-i);
+			}
+			realDirectiondiff_temp /=10.0f;
+			realtimeDirection_temp = oriData_a[90] + realDirectiondiff_temp;
+			if (realtimeDirection_temp < 0) {
+				realtimeDirection_temp +=360;
+			}else if (realtimeDirection_temp >360) {
+				realtimeDirection_temp -=360;
+			}
+
+			realtimeDirection_temp = 48 + realtimeDirection_temp; // transfer
+			if (realtimeDirection_temp < 0) {
+				realtimeDirection_temp += 360;
+			}
+			SDparameters.realtimeDirction = realtimeDirection_temp;
+			*/
+
+		}
+
+
+		if (SDparameters.oneStepComplete) {
+			SDparameters.oneStepComplete = false;
+			updatetrack("PDRFinish");
+		}
+	}
+
+	private void Draw(Position FinalPosition, StepDetectionParameters sdpara, Position wifiPosition, Position PDRPosition) {
+
+		canvas = sfh.lockCanvas();
+		canvas.drawBitmap(map, null, new Rect(0, 0, Math.round(screenSize.x),
+				Math.round(screenSize.y)), paint);
+
+		int final_py = dot.getHeight() / 2;
+		int final_px = dot.getWidth() / 2;
+		int wifi_py = dot.getHeight() / 2;
+		int wifi_px = dot.getWidth() / 2;
+		int PDR_py = user.getHeight() / 2;
+		int PDR_px = user.getWidth() / 2;
+		Float xx = Float.valueOf(screenSize.x);
+		Float yy = Float.valueOf(screenSize.y);
+		Double final_xxx = FinalPosition.x / mapWidth * (xx.doubleValue());
+		Double final_yyy = FinalPosition.y / mapHeight * (yy.doubleValue());
+		Double wifi_xxx = wifiPosition.x / mapWidth * (xx.doubleValue());
+		Double wifi_yyy = wifiPosition.y / mapHeight * (yy.doubleValue());
+		Double PDR_xxx = PDRPosition.x / mapWidth * (xx.doubleValue());
+		Double PDR_yyy = PDRPosition.y / mapHeight * (yy.doubleValue());
+		int final_x = final_xxx.intValue();
+		int final_y = final_yyy.intValue();
+		int wifi_x = wifi_xxx.intValue();
+		int wifi_y = wifi_yyy.intValue();
+		int PDR_x = PDR_xxx.intValue();
+		int PDR_y = PDR_yyy.intValue();
+		DecimalFormat df = new DecimalFormat("0.00");
+
+		//Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.user1);
+		Matrix matrix = new Matrix();
+		//matrix.postTranslate(px, py);
+		matrix.postRotate((float) sdpara.realtimeDirction);
+		//matrix.setRotate((float) sdpara.realtimeDirction, px, py);
+		//matrix.postTranslate(x-px, y-py);
+		//canvas.drawBitmap(user,matrix,null);
+		user_rotate = Bitmap.createBitmap(user, 0, 0, user.getWidth(), user.getHeight(), matrix, true);
+		canvas.drawBitmap(user_rotate, PDR_x - PDR_px, PDR_y - PDR_py, paint);
+		canvas.drawBitmap(dot, wifi_x - wifi_px, wifi_y - wifi_py, paint);
+		canvas.drawBitmap(dot, final_x - final_px, final_y - final_py, paint);
+
+		Paint textPaint = new Paint();
+		textPaint.setTextSize(40f);
+		canvas.drawText(
+				"F(" + df.format(FinalPosition.x) + " , " + df.format(FinalPosition.y)
+						+ ")", final_x - final_px + 50, final_y - final_py + 50, textPaint);
+		canvas.drawText(
+				"W(" + df.format(wifiPosition.x) + " , " + df.format(wifiPosition.y)
+						+ ")", wifi_x - wifi_px + 50, wifi_y - wifi_py + 50, textPaint);
+		canvas.drawText(
+				"P(" + df.format(PDRPosition.x) + " , " + df.format(PDRPosition.y)
+						+ ")", PDR_x - PDR_px + 50, PDR_y - PDR_py + 50, textPaint);
+
+		sfh.unlockCanvasAndPost(canvas);
+	}
+
+	private boolean getWifiPosition(String... params) {
+		StringBuilder urlString = new StringBuilder();
+		urlString.append("http://172.28.220.94/ipsapi/api/");
+		urlString.append(params[0]);
+		urlString.append("?");
+		urlString.append(params[1]).append("=");
+		urlString.append(params[2]);
+
+		HttpURLConnection urlConnection = null;
+		InputStream inStream = null;
+
+		try {
+			URL url = new URL(urlString.toString());
+			urlConnection = (HttpURLConnection) url.openConnection();
+			//urlConnection.setRequestMethod("GET");
+			//urlConnection.setDoOutput(true);
+			//urlConnection.setDoInput(true);
+			urlConnection.connect();
+			inStream = urlConnection.getInputStream();
+			BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+			String temp;
+			StringBuilder stringBuilder = new StringBuilder();
+			while ((temp = bReader.readLine()) != null)
+				stringBuilder.append(temp).append("\n");
+			bReader.close();
+			String response = stringBuilder.toString();
+			if (response == null) {
+				return false;
+			}
+			JSONObject jsonResponse = (JSONObject) new JSONTokener(response).nextValue();
+			//String responseMAC = jsonResponse.getString("mac");
+			Double temp_x = Double.parseDouble(jsonResponse.getString("x"));
+			Double temp_y = Double.parseDouble(jsonResponse.getString("y"));
+			if ((temp_x - WIFIPos.x) > 0.001 || (temp_y - WIFIPos.y) > 0.001) {
+				flag_WIFIchanged = true;
+				WIFIPos.x = temp_x;
+				WIFIPos.y = temp_y;
+			}
+		} catch (Exception e) {
+			Log.e("ERROR", e.getMessage(), e);
+			return false;
+		} finally {
+			if (inStream != null) {
+				try {
+					// this will close the bReader as well
+					inStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (urlConnection != null) {
+				urlConnection.disconnect();
+			}
+		}
+		return true;
+	}
+
+	/*this class is for surface holder callback*/
+	class DisplaySurfaceView implements SurfaceHolder.Callback {
+
+		@Override
+		public void surfaceCreated(SurfaceHolder holder) {
+			canvas = sfh.lockCanvas();
+			canvas.drawColor(Color.WHITE);
+			canvas.drawRect(0, 0, screenSize.x, screenSize.y, new Paint());
+			canvas.drawBitmap(
+					map,
+					null,
+					new Rect(0, 0, Math.round(screenSize.x), Math
+							.round(screenSize.y)), paint);
+			sfh.unlockCanvasAndPost(canvas);
+		}
+
+		@Override
+		public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2,
+								   int arg3) {
+		}
+
+		@Override
+		public void surfaceDestroyed(SurfaceHolder arg0) {
+		}
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -263,113 +597,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 		return super.onOptionsItemSelected(item);
 	}
 
-	//this runs on main thread.
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Auto-generated method stub
-
-		double realtimeDirection_temp=0;
-		double[] diffrealdirection = new double[9];
-
-		if(event.sensor.getName() == accSensor.getName()) // acceleration
-		{
-			//update array
-			for (int i = 0; i < accData_z.length-1; i++) {
-				accData_z[i]=accData_z[i+1];
-			}
-			accData_z[99]=event.values[2]; // z-axis acceleration
-			if (SDparameters.possible_start) {
-				SDparameters.counting++;
-			}
-
-			if (isFirstPoint==true)
-			{
-				sDfunction.stepDetection(accData_z, oriData_a, SDparameters);
-			}
-		}
-		else // orientation
-		{
-			//update array
-			for (int i = 0; i < oriData_a.length-1; i++) {
-				oriData_a[i]=oriData_a[i+1];
-			}
-			oriData_a[99]=event.values[0]; // azimuth
-			for (int i = 90; i < 100-1; i++) {
-				//realtimeDirection_temp += oriData_a[i];
-				double difftemp;
-				difftemp= oriData_a[i]-oriData_a[i+1]; //0--360 gap
-				if (difftemp > 180) {
-					difftemp = difftemp - 360;
-				}else if (difftemp < -180) {
-					difftemp = difftemp + 360;
-				}
-				diffrealdirection[i-90] = difftemp;
-			}
-			for (int i = 0; i < diffrealdirection.length; i++) {
-				realtimeDirection_temp += diffrealdirection[i]*(9-i);
-			}
-			realtimeDirection_temp /=10.0f;
-			realtimeDirection_temp +=oriData_a[90];
-			if (realtimeDirection_temp < 0) {
-				realtimeDirection_temp +=360;
-			}else if (realtimeDirection_temp >360) {
-				realtimeDirection_temp -=360;
-			}
-
-			realtimeDirection_temp = 48 + realtimeDirection_temp; // transfer
-			if (realtimeDirection_temp < 0) {
-				realtimeDirection_temp += 360;
-			}
-			SDparameters.realtimeDirction = realtimeDirection_temp;
-		}
-
-
-		if (SDparameters.oneStepComplete) {
-			SDparameters.oneStepComplete = false;
-			updatetrack("Finish");
-		}
-	}
-
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 	}
 
-	private void InitSensors()
-	{
-		smManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-		accSensor = smManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-		oriSensor = smManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-
-		//initialization
-		for (int i = 0; i < accData_z.length; i++) {
-			accData_z[i]=0;
-		}
-		for (int i = 0; i < oriData_a.length; i++) {
-			oriData_a[i]=0;
-		}
-		//open sensor
-		smManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_GAME);
-		smManager.registerListener(this, oriSensor, SensorManager.SENSOR_DELAY_GAME);
-
-	}
-
-
-	private void InitSurface() {
-
-		surface_view = (SurfaceView) findViewById(R.id.surfaceView1);
-		sfh = surface_view.getHolder();
-		sfh.addCallback(new DisplaySurfaceView());
-		//surface_view.setOnTouchListener(listener);
-
-		float x = this.getWindowManager().getDefaultDisplay().getWidth();
-		float y = this.getWindowManager().getDefaultDisplay().getHeight();
-		screenSize.set(x, y);
-		map = BitmapFactory.decodeResource(getResources(), R.drawable.lab2);
-		user = BitmapFactory.decodeResource(getResources(), R.drawable.user2);
-		dot = BitmapFactory.decodeResource(getResources(), R.drawable.user);
-	}
-
+}
+	/*******************************bluetooth**********************************/
+	/*
     private Runnable mStopRunnable = new Runnable() {
         @Override
         public void run() {
@@ -394,123 +629,9 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 	private void stopScan(){
 		mBluetoothAdapter.stopLeScan(this);
 	}
-
-
-	private OnTouchListener listener = new OnTouchListener() {
-		@Override
-		public boolean onTouch(View v, MotionEvent e) {
-
-			if (isFirstPoint == false)
-			{
-				//int x = (int) e.getX();
-				//int y = (int) e.getY();
-				//finalPosition.x=(float)x*mapWidth/screenSize.x;
-				//finalPosition.y=(float)y*mapHeight/screenSize.y;
-
-				isFirstPoint = true;
-
-			}
-			//Log.e(TAG, x+","+y);
-//            canvas = sfh.lockCanvas();
-//			canvas.drawBitmap(
-//					map,
-//					null,
-//					new Rect(0, 0, Math.round(screenSize.x), Math
-//							.round(screenSize.y)), paint);
-//    		int py = user.getHeight() / 2;
-//    		int px = user.getWidth() / 2;
-//            canvas.drawBitmap(user, x - px, y - py, paint);
-//            sfh.unlockCanvasAndPost(canvas);
-			return false;
-		}
-	};
-
-	private void Draw(Position FinalPosition, StepDetectionParameters sdpara,Position wifiPosition, Position PDRPosition) {
-
-		canvas = sfh.lockCanvas();
-		paint = new Paint();
-		canvas.drawBitmap(map, null, new Rect(0, 0, Math.round(screenSize.x),
-				Math.round(screenSize.y)), paint);
-
-		int final_py = dot.getHeight() / 2;
-		int final_px = dot.getWidth() / 2;
-		int wifi_py = dot.getHeight()/2;
-		int wifi_px = dot.getWidth()/2;
-		int PDR_py = user.getHeight()/2;
-		int PDR_px = user.getWidth()/2;
-		Float xx = new Float(screenSize.x);
-		Float yy = new Float(screenSize.y);
-		Double final_xxx = FinalPosition.x / mapWidth * (xx.doubleValue());
-		Double final_yyy = FinalPosition.y / mapHeight * (yy.doubleValue());
-		Double wifi_xxx = wifiPosition.x / mapWidth * (xx.doubleValue());
-		Double wifi_yyy = wifiPosition.y / mapHeight * (yy.doubleValue());
-		Double PDR_xxx = PDRPosition.x / mapWidth * (xx.doubleValue());
-		Double PDR_yyy = PDRPosition.y / mapHeight * (yy.doubleValue());
-		int final_x = final_xxx.intValue();
-		int final_y = final_yyy.intValue();
-		int wifi_x = wifi_xxx.intValue();
-		int wifi_y = wifi_yyy.intValue();
-		int PDR_x = PDR_xxx.intValue();
-		int PDR_y = PDR_yyy.intValue();
-		DecimalFormat df = new DecimalFormat("0.00");
-
-		//Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.user1);
-		Matrix matrix = new Matrix();
-		//matrix.postTranslate(px, py);
-		matrix.postRotate((float) sdpara.realtimeDirction);
-		//matrix.setRotate((float) sdpara.realtimeDirction, px, py);
-		//matrix.postTranslate(x-px, y-py);
-		//canvas.drawBitmap(user,matrix,null);
-		user_rotate = Bitmap.createBitmap(user, 0, 0, user.getWidth(), user.getHeight(), matrix, true);
-		canvas.drawBitmap(user_rotate, PDR_x-PDR_px, PDR_y-PDR_py , paint);
-		canvas.drawBitmap(dot, wifi_x-wifi_px, wifi_y-wifi_py , paint);
-		canvas.drawBitmap(dot, final_x-final_px, final_y-final_py , paint);
-
-		Paint textPaint = new Paint();
-		textPaint.setTextSize(40f);
-		canvas.drawText(
-				"F(" + df.format(FinalPosition.x) + " , " + df.format(FinalPosition.y)
-						+ ")", final_x - final_px + 50, final_y - final_py + 50, textPaint);
-		canvas.drawText(
-				"W(" + df.format(wifiPosition.x) + " , " + df.format(wifiPosition.y)
-						+ ")", wifi_x - wifi_px + 50, wifi_y - wifi_py + 50, textPaint);
-		canvas.drawText(
-				"P(" + df.format(PDRPosition.x) + " , " + df.format(PDRPosition.y)
-						+ ")", PDR_x - PDR_px + 50, PDR_y - PDR_py + 50, textPaint);
-
-		sfh.unlockCanvasAndPost(canvas);
-	}
-
-	class DisplaySurfaceView implements SurfaceHolder.Callback {
-
-		@Override
-		public void surfaceCreated(SurfaceHolder holder) {
-			canvas = sfh.lockCanvas();
-			canvas.drawColor(Color.WHITE);
-			canvas.drawRect(0, 0, screenSize.x, screenSize.y, new Paint());
-			canvas.drawBitmap(
-					map,
-					null,
-					new Rect(0, 0, Math.round(screenSize.x), Math
-							.round(screenSize.y)), paint);
-			sfh.unlockCanvasAndPost(canvas);
-		}
-
-		@Override
-		public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2,
-								   int arg3) {
-			//
-
-		}
-
-		@Override
-		public void surfaceDestroyed(SurfaceHolder arg0) {
-			//
-
-		}
-
-	}
-
+	*/
+/************************************bluetooth******************************************/
+	/*
 	@Override
 	public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
 		// TODO Auto-generated method stub
@@ -627,89 +748,5 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 					}
 				}
 			}
-		}*/
-	};
-
-	private boolean getWifiPosition(String... params){
-		StringBuilder urlString = new StringBuilder();
-		urlString.append("http://172.28.220.94/ipsapi/api/");
-		urlString.append(params[0]);
-		urlString.append("?");
-		urlString.append(params[1]).append("=");
-		urlString.append(params[2]);
-
-		HttpURLConnection urlConnection = null;
-		URL url = null;
-		InputStream inStream = null;
-
-		try {
-			url = new URL(urlString.toString());
-			urlConnection = (HttpURLConnection) url.openConnection();
-			//urlConnection.setRequestMethod("GET");
-			//urlConnection.setDoOutput(true);
-			//urlConnection.setDoInput(true);
-			urlConnection.connect();
-			inStream = urlConnection.getInputStream();
-			BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
-			String temp;
-			StringBuilder stringBuilder = new StringBuilder();
-			while ((temp = bReader.readLine()) != null)
-				stringBuilder.append(temp).append("\n");
-			bReader.close();
-			String response = stringBuilder.toString();
-			if(response == null) {
-				return false;
-			}
-			JSONObject jsonResponse = (JSONObject) new JSONTokener(response).nextValue();
-			//String responseMAC = jsonResponse.getString("mac");
-			Double temp_x = Double.parseDouble(jsonResponse.getString("x"));
-			Double temp_y = Double.parseDouble(jsonResponse.getString("y"));
-			if((temp_x - WIFIPos.x)> 0.001 || (temp_y-WIFIPos.y)> 0.001){
-				flag_WIFIchanged = true;
-				WIFIPos.x = temp_x;
-				WIFIPos.y = temp_y;
-			}
-			if(initialPositionReceived == false) {
-				if (WIFIPos.x !=  0.0) {
-					initialPositionReceived = true;
-					finalPosition.x = WIFIPos.x;
-					finalPosition.y = WIFIPos.y;
-					PDRPosition.x = WIFIPos.x;
-					PDRPosition.y = WIFIPos.y;
-					int i;
-					double orientation;
-					double radius;
-					double z_R=1;
-					Random r = new Random(1);
-					for(i=0;i<500;i++){
-						orientation = Math.random()*2*Math.PI;
-						radius = z_R/2*r.nextGaussian();
-						particle[i].x = WIFIPos.x + radius*Math.cos(orientation);
-						particle[i].y = WIFIPos.y + radius*Math.sin(orientation);
-					}
-				}
-				else{
-					return false;
-				}
-				new Thread(new MyThread()).start(); // start real time display
-			}
-		} catch (Exception e) {
-			Log.e("ERROR", e.getMessage(), e);
-			return false;
-		} finally {
-			if (inStream != null) {
-				try {
-					// this will close the bReader as well
-					inStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (urlConnection != null) {
-				urlConnection.disconnect();
-			}
 		}
-		return true;
-	}
-}
-
+	};*/

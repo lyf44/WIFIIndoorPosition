@@ -2,46 +2,58 @@
 <items version="2" >
 
     <item
-        jar="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\jars\classes.jar"
+        is-multidex="true"
+        jar="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\classes.jar"
         jumboMode="true"
-        revision="24.0.2"
-        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
-        <dex dex="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-appcompat-v7-21.0.3_45c8eb5efcc7842ef71b7c7f6b240575c1b07ec6\classes.dex" />
-    </item>
-    <item
-        jar="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
-        jumboMode="true"
-        revision="24.0.2"
-        sha1="f8badbb9f39bc87ed2e99b75520eca36420b8315">
-        <dex dex="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_244df440c2dd837e6bdaa14933824ad28faa97e7\classes.dex" />
-    </item>
-    <item
-        jar="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
-        jumboMode="true"
-        revision="24.0.2"
-        sha1="012b7d9e3c07a8d0f6cf54bb37aa770ff79ac0fa">
-        <dex dex="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_f0859b6fc53de475af80c5b50595b8de37f43499\classes.dex" />
-    </item>
-    <item
-        jar="C:\Users\luyun\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
-        jumboMode="true"
-        revision="24.0.2"
-        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
-        <dex dex="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-21.0.3_5c2bec154920997995f86110ec8a41285ab7d5e9\classes.dex" />
-    </item>
-    <item
-        jar="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\libs\internal_impl-21.0.3.jar"
-        jumboMode="true"
-        revision="24.0.2"
-        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-21.0.3_d03ce0c6a74cb9a3aac9310106ff3206a1300bf8\classes.dex" />
-    </item>
-    <item
-        jar="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\classes.jar"
-        jumboMode="true"
+        optimize="true"
         revision="24.0.2"
         sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="D:\MyLife\work\FYP\WIFI\indoor-positioning\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-21.0.3_b0906a520aa7d9c843f4d291ab6df64337271543\classes.dex" />
+        <dex dex="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-21.0.3_2d4e26d6df8fcbde66819973c0cb8f72e1236436\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.2"
+        sha1="d874327d6e7ae08ff351e27f4b3ff1216a2dbcaa">
+        <dex dex="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_2f2512a60cc432e71c8a5e10578a991231c98e02\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\luyun\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-21.0.3_5c2bec154920997995f86110ec8a41285ab7d5e9\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.2"
+        sha1="af6b9996c11160556a6d4e0779dc00f585f90a56">
+        <dex dex="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_c7f34ac9784f45f9f062ddf0ddac6632dd3ed2ed\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\jars\libs\internal_impl-21.0.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-21.0.3_ad7c3936117e2fdd3f193c67cba2df91f480bc08\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="D:\MyLife\work\FYP\WIFI\WIFIIndoorPosition\LocDemo\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-appcompat-v7-21.0.3_9d03d4092ea3059909fd6809d2a5594c6bcba7f0\classes.dex" />
     </item>
 
 </items>

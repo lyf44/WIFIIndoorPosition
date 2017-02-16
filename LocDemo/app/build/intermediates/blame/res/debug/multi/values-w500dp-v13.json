@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "D:\\MyLife\\work\\FYP\\WIFI\\indoor-positioning-master\\LocDemo\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-w500dp-v13\\values-w500dp-v13.xml",
+        "outputFile": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-w500dp-v13\\values-w500dp-v13.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 105
                 },
                 "from": {
-                    "file": "D:\\MyLife\\work\\FYP\\WIFI\\indoor-positioning-master\\LocDemo\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\21.0.3\\res\\values-w500dp\\values.xml",
+                    "file": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\21.0.3\\res\\values-w500dp\\values.xml",
                     "position": {
                         "startLine": 3,
                         "startColumn": 4,

@@ -1,0 +1,7 @@
+#Thu Feb 16 18:21:44 SGT 2017
+base.0=D\:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_c7f34ac9784f45f9f062ddf0ddac6632dd3ed2ed
+renamed.1=classes2.dex
+renamed.0=classes.dex
+file.1=D\:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_2f2512a60cc432e71c8a5e10578a991231c98e02\\classes.dex
+base.1=D\:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_2f2512a60cc432e71c8a5e10578a991231c98e02
+file.0=D\:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_c7f34ac9784f45f9f062ddf0ddac6632dd3ed2ed\\classes.dex

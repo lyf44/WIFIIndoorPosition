@@ -1300,12 +1300,10 @@ containing a value of this type.
         public static final int abc_textfield_search_default_mtrl_alpha=0x7f020031;
         public static final int abc_textfield_search_material=0x7f020032;
         public static final int ic_launcher=0x7f020033;
-        public static final int lab=0x7f020034;
-        public static final int lab1=0x7f020035;
-        public static final int lab2=0x7f020036;
-        public static final int user=0x7f020037;
-        public static final int user1=0x7f020038;
-        public static final int user2=0x7f020039;
+        public static final int lab3=0x7f020034;
+        public static final int user=0x7f020035;
+        public static final int user1=0x7f020036;
+        public static final int user2=0x7f020037;
     }
     public static final class id {
         public static final int action_bar=0x7f0b0031;

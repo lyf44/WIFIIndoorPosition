@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "D:\\MyLife\\work\\FYP\\WIFI\\indoor-positioning-master\\LocDemo\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-xlarge-land-v4\\values-xlarge-land-v4.xml",
+        "outputFile": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-xlarge-land-v4\\values-xlarge-land-v4.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 114
                 },
                 "from": {
-                    "file": "D:\\MyLife\\work\\FYP\\WIFI\\indoor-positioning-master\\LocDemo\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\21.0.3\\res\\values-xlarge-land\\values.xml",
+                    "file": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\21.0.3\\res\\values-xlarge-land\\values.xml",
                     "position": {
                         "startLine": 3,
                         "startColumn": 4,

@@ -14,4 +14,5 @@ public class StepDetectionParameters {
 	public double realtimeDirction = 0;
 	public double stepLength = 0.65f;
 	public double[] store_walking_direction = {1000 , 0 , 0 , 0}; // in order to identify initial point, set 1000
+	public double heading_offset = 0f;
 }

@@ -4,9 +4,10 @@ package czh.example.locdemo;
 public class Position {
 	public Double x=0.0;
 	public Double y=0.0;
-	public Integer floor=0;
+	//public Integer floor=0;
 		
 	//for wifi filter
+	/*
 	public Double wifi_dx=0.0;
 	public Double wifi_dy=0.0;
 	public Double wifi_vx=0.0;
@@ -21,5 +22,5 @@ public class Position {
     public Double minDis1=0.0;
     public Double minDis2=0.0;
     public Double minAng=0.0;
-
+    */
 }
