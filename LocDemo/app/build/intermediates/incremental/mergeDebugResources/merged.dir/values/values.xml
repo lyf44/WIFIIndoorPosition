@@ -196,6 +196,8 @@
     <string name="abc_toolbar_collapse_description">Collapse</string>
     <string name="action_settings">Settings</string>
     <string name="app_name">LocDemo</string>
+    <string name="drawer_close">close</string>
+    <string name="drawer_open">open</string>
     <string name="hello_world">Hello world!</string>
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <!--

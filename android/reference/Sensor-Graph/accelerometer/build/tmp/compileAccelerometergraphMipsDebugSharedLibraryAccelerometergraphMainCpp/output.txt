@@ -1,5 +1,0 @@
-See file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/compileAccelerometergraphMipsDebugSharedLibraryAccelerometergraphMainCpp/output.txt for all output for compileAccelerometergraphMipsDebugSharedLibraryAccelerometergraphMainCpp.
-compiling sensorgraph.cpp successful.
-clang++.exe: warning: optimization flag '-finline-functions' is not supported
-
-Finished compileAccelerometergraphMipsDebugSharedLibraryAccelerometergraphMainCpp, see full log file:///C:/Users/ROOT/AndroidStudioProjects/Sensor-Graph/accelerometer/build/tmp/compileAccelerometergraphMipsDebugSharedLibraryAccelerometergraphMainCpp/output.txt.

@@ -2,5 +2,9 @@
     {
         "merged": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\lab3.jpg",
         "source": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\src\\main\\res\\drawable-hdpi\\lab3.jpg"
+    },
+    {
+        "merged": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\reddot.jpg",
+        "source": "D:\\MyLife\\work\\FYP\\WIFI\\WIFIIndoorPosition\\LocDemo\\app\\src\\main\\res\\drawable-hdpi\\reddot.jpg"
     }
 ]
